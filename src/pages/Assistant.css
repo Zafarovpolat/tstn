@@ -1,0 +1,343 @@
+.assistant {
+    background-color: #15191f;
+    padding: 20px;
+    overflow: hidden;
+}
+
+/* Убираем скролл в основном окне */
+.assistant h2 {
+    margin-top: 0;
+    color: #EEF0F4;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+#clients {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: #1d232c;
+    border-radius: 12px;
+    box-shadow: 0px 4px 20px 0px rgba(7, 6, 18, 0.1);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Стили скроллбара для #clients */
+#clients::-webkit-scrollbar {
+    width: 8px;
+}
+
+#clients::-webkit-scrollbar-track {
+    background: #1d232c;
+    border-radius: 12px;
+}
+
+#clients::-webkit-scrollbar-thumb {
+    background: #3B4758;
+    border-radius: 12px;
+}
+
+#clients::-webkit-scrollbar-thumb:hover {
+    background: #BAC4D1;
+}
+
+/* Для Firefox */
+#clients {
+    scrollbar-width: thin;
+    scrollbar-color: #3B4758 #1d232c;
+}
+
+.client-section {
+    margin-bottom: 0;
+    border-bottom: 1px solid #3B4758;
+}
+
+.client-section:last-child {
+    border-bottom: none;
+}
+
+.client-header {
+    color: #BAC4D1;
+    font-size: 14px;
+}
+
+.client-header button {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #BAC4D1;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    padding: 20px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.client-header:hover {
+    background-color: #252b36;
+}
+
+.client-info {
+    flex: 1;
+}
+
+.client-timestamp {
+    font-weight: 600;
+    color: #EEF0F4;
+    font-size: 12px;
+}
+
+.questions {
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    display: none;
+}
+
+.questions-scroll {
+    display: block;
+    padding: 20px;
+    padding-right: 28px;
+    overflow-y: auto;
+}
+
+/* Стили скроллбара для questions-scroll */
+.questions-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.questions-scroll::-webkit-scrollbar-track {
+    background: #1d232c;
+    border-radius: 12px;
+}
+
+.questions-scroll::-webkit-scrollbar-thumb {
+    background: #3B4758;
+    border-radius: 12px;
+}
+
+.questions-scroll::-webkit-scrollbar-thumb:hover {
+    background: #BAC4D1;
+}
+
+/* Для Firefox */
+.questions-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #3B4758 #1d232c;
+}
+
+.question {
+    padding: 20px 0;
+    color: #BAC4D1;
+    font-size: 14px;
+    border-bottom: 1px solid #3B4758;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.question:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.question p {
+    margin: 0;
+}
+
+/* Increase size of radio inputs */
+.question input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+/* Improve image quality and scaling */
+.question img,
+.answer-img {
+    max-width: fit-content;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+/* Add hover effect for inputs */
+.question input[type="radio"]:hover {
+    background-color: #3B4758;
+    border-color: #BAC4D1;
+    transform: scale(1.1);
+}
+
+/* Ensure label alignment with larger inputs */
+.question li label {
+    align-items: center;
+    gap: 15px;
+}
+
+.question ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.question li {
+    margin: 5px 0;
+}
+
+.question li label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.question li:hover {
+    background-color: #3B4758;
+}
+
+.answer-img {
+    max-width: 100px;
+    margin-left: 10px;
+}
+
+/* Лоадер */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Assistant.css */
+.notification-error {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    min-width: 200px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+}
+
+.notification-error.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.notification-error.error {
+    background-color: #dc3545;
+    color: white;
+}
+
+.notification-error.warning {
+    background-color: #ffcc00;
+    color: #333;
+}
+
+.notification-error.visible {
+    opacity: 1;
+    transition: opacity 0.3s ease-in;
+}
+
+.notification-error.hiding {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.no-connection-message {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Стили для мобильных устройств */
+@media (max-width: 768px) {
+    .assistant {
+        padding: 15px;
+    }
+
+    .assistant h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    #clients {
+        max-height: 60vh;
+    }
+
+    .client-header {
+        padding: 12px 15px;
+        font-size: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .client-timestamp {
+        min-width: auto;
+        font-size: 10px;
+    }
+
+    .questions-scroll {
+        padding: 15px;
+        padding-right: 23px;
+    }
+
+    .question {
+        padding: 12px 0;
+        font-size: 12px;
+    }
+
+    .answer-img {
+        max-width: 80px;
+    }
+
+    .question input[type="radio"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    .question li label {
+        gap: 10px;
+    }
+}

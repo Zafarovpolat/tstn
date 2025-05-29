@@ -1,38 +1,231 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', Arial, sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  background-color: #15191f;
+  overflow-x: hidden;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Кастомный скроллбар для WebKit-браузеров (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 10px;
+  /* Ширина скроллбара */
+  height: 10px;
+  /* Высота скроллбара (для горизонтального скроллинга, если есть) */
+}
+
+::-webkit-scrollbar-track {
+  background: #252b36;
+  /* Фон трека скроллбара (темный, чтобы соответствовать дизайну) */
+  border-radius: 5px;
+  /* Скругление углов трека */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #586A84;
+  /* Цвет ползунка (синий, в стиле вашего дизайна) */
+  border-radius: 5px;
+  /* Скругление углов ползунка */
+  transition: background 0.3s ease;
+  /* Плавный переход цвета */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7B8BA4;
+  /* Более светлый синий при наведении */
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+  /* Убираем кнопки скроллбара (вверх/вниз), если они есть */
+}
+
+/* Кастомный скроллбар для Firefox */
+* {
+  scrollbar-width: thin;
+  /* Тонкий скроллбар */
+  scrollbar-color: #586A84 #252b36;
+  /* Цвет ползунка и трека */
+}
+
+/* Общие стили для скроллбара (для других браузеров, если нужно) */
+html,
+body,
+.content,
+.admin-panel {
+  /* Убедитесь, что скроллбар применяется к контейнерам */
+  -ms-overflow-style: none;
+  /* Убираем стандартный скроллбар в IE/Edge (если не нужен) */
+  scrollbar-width: thin;
+  /* Firefox */
+}
+
+/* Убираем стандартный скроллбар для IE/Edge, если не нужен */
+html,
+body,
+.content,
+.admin-panel::-webkit-scrollbar {
+  display: block;
+  /* Убедимся, что скроллбар виден */
+}
+
+.admin-panel {
+  display: flex;
+  padding: 15px;
+  gap: 20px;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+@media (max-width: 700px) {
+  .content {
+    padding: 10px;
+  }
+
+  .admin-panel {
+    gap: 10px;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0px 4px 20px 0px rgba(7, 6, 18, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  max-width: 500px;
 }
 
-.App-link {
-  color: #61dafb;
+.toast.success {
+  background-color: #2D3748;
+  color: #27ae60;
 }
 
-@keyframes App-logo-spin {
+.toast.error {
+  background-color: #2D3748;
+  color: #e53e3e;
+}
+
+.toast.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  animation: slideInFromBottom 0.3s ease-out forwards;
+}
+
+.toast.hiding {
+  opacity: 0;
+  visibility: visible;
+  transform: translateX(-50%) translateY(20px);
+  pointer-events: none;
+  animation: slideOutToBottom 0.3s ease-out forwards;
+}
+
+@keyframes slideInFromBottom {
   from {
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToBottom {
+  from {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+  }
+}
+
+/* Стили лоадера (предполагается, что они уже есть, но добавим для полноты) */
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
     transform: rotate(0deg);
   }
-  to {
+
+  100% {
     transform: rotate(360deg);
   }
+}
+
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.5rem;
+}
+
+.banned-screen {
+  text-align: center;
+  padding-top: 100px;
+  color: #dc3545;
+}
+
+.banned-screen h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.banned-screen p {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+.logo {
+  display: none;
 }

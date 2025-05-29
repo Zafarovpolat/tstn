@@ -1,0 +1,273 @@
+.sidebar {
+    width: 250px;
+    background-color: #1d232c;
+    color: #a0aec0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0 0;
+    min-height: calc(100vh - 30px);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    position: sticky;
+    top: 15px;
+    align-self: flex-start;
+    z-index: 100;
+}
+
+.logo {
+    text-align: center;
+    padding: 0 0px 20px;
+    border-bottom: 1px solid #2d3748;
+}
+
+.logo img {
+    width: 70%;
+    height: auto;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #2d3748;
+}
+
+.avatar {
+    min-width: 40px;
+    min-height: 40px;
+    background-color: #4299e1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-weight: 500;
+    color: white;
+    font-size: 16px;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-details p {
+    margin: 0;
+    font-weight: 500;
+    color: #e2e8f0;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.user-details span {
+    font-size: 12px;
+    color: #a0aec0;
+}
+
+.menu {
+    flex: 1;
+    padding: 20px;
+}
+
+.menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu li {
+    padding: 0;
+    margin: 0;
+}
+
+.menu button {
+    width: 100%;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #586A84;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    text-align: left;
+}
+
+.menu button:hover {
+    background-color: #2d3748;
+    color: white;
+}
+
+.menu button:hover svg path {
+    fill: white;
+}
+
+.menu button.active {
+    background-color: #0077E4;
+    color: white;
+}
+
+.menu button.active svg path {
+    fill: white;
+}
+
+.menu button.active:hover {
+    background-color: #0077E4;
+    color: white;
+}
+
+.menu button svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.menu button svg path {
+    transition: fill 0.3s ease;
+}
+
+.logout {
+    padding: 20px;
+    border-top: 1px solid #2d3748;
+}
+
+.logout button {
+    width: 100%;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #e53e3e;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    background-color: transparent;
+    border: 1px solid #e53e3e;
+    justify-content: center;
+}
+
+.logout button:hover {
+    background-color: #e53e3e;
+    color: white;
+}
+
+.logout button:hover svg path {
+    fill: white;
+}
+
+.logout button svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.logout button svg path {
+    transition: fill 0.3s ease;
+}
+
+@media (max-width: 1366px) {
+    .sidebar {
+        width: 230px;
+        min-width: 230px;
+    }
+
+    .menu button {
+        padding: 16px 20px;
+    }
+
+    .logout button {
+        padding: 15px 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu button {
+        padding: 10px 16px;
+    }
+
+    .logout button {
+        padding: 10px 16px;
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        width: 60px;
+        min-width: 60px;
+        padding: 15px 0;
+        overflow-x: hidden;
+    }
+
+    .logo {
+        padding: 0 0 10px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .logo h2 {
+        font-size: 1rem;
+    }
+
+    .user-info {
+        padding: 10px 0;
+        justify-content: center;
+    }
+
+    .avatar {
+        margin-right: 0;
+    }
+
+    .user-details {
+        display: none;
+    }
+
+    .menu {
+        padding: 10px 0;
+    }
+
+    .menu ul {
+        gap: 5px;
+        padding: 0 10px;
+    }
+
+    .menu button {
+        padding: 10px 0;
+        justify-content: center;
+    }
+
+    .menu button svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .menu button .menu-text {
+        display: none;
+    }
+
+    .logout {
+        padding: 10px 10px 0;
+        border-top: none;
+    }
+
+    .logout button {
+        padding: 10px 0;
+        justify-content: center;
+    }
+
+    .logout button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .logout button .menu-text {
+        display: none;
+    }
+}
