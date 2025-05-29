@@ -17,12 +17,14 @@ function Orders() {
     const [newOrder, setNewOrder] = useState({
         client: "",
         url: "",
+        amount: 300000,
         dateTime: "",
         status: "Ожидание",
     });
     const [errors, setErrors] = useState({
         client: "",
         url: "",
+        amount: "",
         dateTime: "",
         status: "",
     });
@@ -31,7 +33,6 @@ function Orders() {
     const [toast, setToast] = useState({ message: "", type: "", visible: false, hiding: false });
 
     const sendTelegramMessage = async (chatId, message) => {
-        // Проверяем наличие chat_id перед отправкой
         if (!chatId) {
             console.warn("chat_id отсутствует, сообщение не отправлено");
             showToast("Уведомление не отправлено: заказ добавлен вручную", "warning");
@@ -85,7 +86,8 @@ function Orders() {
     }, [user, fetchOrders]);
 
     const validateField = (fieldName, value) => {
-        if (!value.trim()) return "Поле не может быть пустым";
+        if (!value && value !== 0) return "Поле не может быть пустым";
+        if (fieldName === "client" && !value.trim()) return "Поле не может быть пустым";
         if (fieldName === "dateTime" && !/^\d{2}-\d{2} \d{2}:\d{2}$/.test(value)) {
             return "Формат: MM-DD HH:MM";
         }
@@ -94,18 +96,24 @@ function Orders() {
             if (!urlPart) return "URL не может быть пустым";
             if (/[^a-zA-Z0-9-]/.test(urlPart)) return "Только англ. буквы, цифры и дефис";
         }
+        if (fieldName === "amount") {
+            const numValue = Number(value);
+            if (isNaN(numValue) || numValue <= 0) return "Сумма должна быть положительным числом";
+        }
         return "";
     };
 
     const handleAddOrder = async () => {
         const clientError = validateField("client", newOrder.client);
         const urlError = validateField("url", `${BASE_URL}${newOrder.url}`);
+        const amountError = validateField("amount", newOrder.amount);
         const dateTimeError = validateField("dateTime", newOrder.dateTime);
 
-        if (clientError || urlError || dateTimeError) {
+        if (clientError || urlError || amountError || dateTimeError) {
             setErrors({
                 client: clientError,
                 url: urlError,
+                amount: amountError,
                 dateTime: dateTimeError,
                 status: "",
             });
@@ -119,20 +127,19 @@ function Orders() {
                 {
                     client: newOrder.client.trim(),
                     url: fullUrl,
-                    amount: 300000,
+                    amount: Number(newOrder.amount),
                     date_time: newOrder.dateTime,
                     status: "Ожидание",
                     user_id: user.id,
-                    chat_id: null, // Вручную добавленные заказы не имеют chat_id
+                    chat_id: null,
                 },
             ]);
             if (error) throw error;
 
-            // Уведомление не отправляется для вручную добавленных заказов
             showToast("Уведомление не отправлено: заказ добавлен вручную", "warning");
 
-            setNewOrder({ client: "", url: "", dateTime: "", status: "Ожидание" });
-            setErrors({ client: "", url: "", dateTime: "", status: "" });
+            setNewOrder({ client: "", url: "", amount: 300000, dateTime: "", status: "Ожидание" });
+            setErrors({ client: "", url: "", amount: "", dateTime: "", status: "" });
             setIsAddingOrder(false);
             showToast("Заказ успешно добавлен", "success");
             await fetchOrders();
@@ -149,32 +156,39 @@ function Orders() {
         setNewOrder({
             client: order.client,
             url: order.url.replace(BASE_URL, ""),
+            amount: order.amount,
             dateTime: order.date_time,
             status: order.status || "Ожидание",
         });
         setIsViewingOrder(true);
         setIsAddingOrder(false);
-        setErrors({ client: "", url: "", dateTime: "", status: "" });
+        setErrors({ client: "", url: "", amount: "", dateTime: "", status: "" });
     };
 
     const handleAccept = async () => {
         const clientError = validateField("client", newOrder.client);
         const urlError = validateField("url", `${BASE_URL}${newOrder.url}`);
+        const amountError = validateField("amount", newOrder.amount);
         const dateTimeError = validateField("dateTime", newOrder.dateTime);
 
-        if (clientError || urlError || dateTimeError) {
-            setErrors({ client: clientError, url: urlError, dateTime: dateTimeError, status: "" });
+        if (clientError || urlError || amountError || dateTimeError) {
+            setErrors({
+                client: clientError,
+                url: urlError,
+                amount: amountError,
+                dateTime: dateTimeError,
+                status: "",
+            });
             return;
         }
 
         setLoading(true);
         try {
             const fullUrl = `${BASE_URL}${newOrder.url}`;
-            // Отправляем уведомление только если есть chat_id
             if (currentOrder.chat_id) {
                 await sendTelegramMessage(
                     currentOrder.chat_id,
-                    `Ваш заказ одобрен!\nСсылка: ${fullUrl}`
+                    `Ваш заказ одобрен!\nСсылка: ${fullUrl}\nСумма: ${Number(newOrder.amount).toLocaleString()} UZS`
                 );
             } else {
                 showToast("Уведомление не отправлено: заказ добавлен вручную", "warning");
@@ -185,6 +199,7 @@ function Orders() {
                 .update({
                     client: newOrder.client.trim(),
                     url: fullUrl,
+                    amount: Number(newOrder.amount),
                     date_time: newOrder.dateTime,
                     status: "Одобрено",
                     approved_by: user.id,
@@ -207,9 +222,11 @@ function Orders() {
     const handleReject = async () => {
         setLoading(true);
         try {
-            // Отправляем уведомление только если есть chat_id
             if (currentOrder.chat_id) {
-                await sendTelegramMessage(currentOrder.chat_id, `Ваш заказ был отклонён.\nКлиент: ${currentOrder.client}`);
+                await sendTelegramMessage(
+                    currentOrder.chat_id,
+                    `Ваш заказ был отклонён.\nКлиент: ${currentOrder.client}\nСумма: ${currentOrder.amount.toLocaleString()} UZS`
+                );
             } else {
                 showToast("Уведомление не отправлено: заказ добавлен вручную", "warning");
             }
@@ -234,11 +251,10 @@ function Orders() {
 
         setLoading(true);
         try {
-            // Отправляем уведомление только если есть chat_id
             if (currentOrder.chat_id) {
                 await sendTelegramMessage(
                     currentOrder.chat_id,
-                    `Заказ удалён администратором.\nКлиент: ${currentOrder.client}`
+                    `Заказ удалён администратором.\nКлиент: ${currentOrder.client}\nСумма: ${currentOrder.amount.toLocaleString()} UZS`
                 );
             } else {
                 showToast("Уведомление не отправлено: заказ добавлен вручную", "warning");
@@ -260,8 +276,8 @@ function Orders() {
     };
 
     const handleCancel = () => {
-        setNewOrder({ client: "", url: "", dateTime: "", status: "Ожидание" });
-        setErrors({ client: "", url: "", dateTime: "", status: "" });
+        setNewOrder({ client: "", url: "", amount: 300000, dateTime: "", status: "Ожидание" });
+        setErrors({ client: "", url: "", amount: "", dateTime: "", status: "" });
         setIsAddingOrder(false);
         setIsViewingOrder(false);
         setCurrentOrder(null);
@@ -273,8 +289,9 @@ function Orders() {
     };
 
     const handleInputChange = (field, value) => {
-        setNewOrder((prev) => ({ ...prev, [field]: value }));
-        const error = validateField(field, field === "url" ? `${BASE_URL}${value}` : value);
+        const processedValue = field === "amount" ? value.replace(/[^0-9]/g, "") : value;
+        setNewOrder((prev) => ({ ...prev, [field]: processedValue }));
+        const error = validateField(field, field === "url" ? `${BASE_URL}${processedValue}` : processedValue);
         setErrors((prev) => ({ ...prev, [field]: error }));
     };
 
@@ -361,7 +378,16 @@ function Orders() {
                     </div>
                     <div className="form-group">
                         <label>Сумма (UZS)</label>
-                        <input type="text" value="300 000" disabled />
+                        <div className="input-wrapper">
+                            <input
+                                type="text"
+                                value={newOrder.amount}
+                                onChange={(e) => handleInputChange("amount", e.target.value)}
+                                disabled={loading}
+                                className={errors.amount ? "input-error" : ""}
+                            />
+                            {errors.amount && <span className="error-inside">{errors.amount}</span>}
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Дата и время (MM-DD HH:MM)</label>
@@ -426,7 +452,16 @@ function Orders() {
                     </div>
                     <div className="form-group">
                         <label>Сумма (UZS)</label>
-                        <input type="text" value="300 000" disabled />
+                        <div className="input-wrapper">
+                            <input
+                                type="text"
+                                value={newOrder.amount}
+                                onChange={(e) => handleInputChange("amount", e.target.value)}
+                                disabled={loading || !isOrderEditable(currentOrder)}
+                                className={errors.amount ? "input-error" : ""}
+                            />
+                            {errors.amount && <span className="error-inside">{errors.amount}</span>}
+                        </div>
                     </div>
                     <div className="form-group">
                         <label>Дата и время (MM-DD HH:MM)</label>

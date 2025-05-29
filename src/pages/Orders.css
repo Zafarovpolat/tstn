@@ -57,7 +57,8 @@
 }
 
 .orders-table th,
-.orders-table td {
+.orders-table td,
+.orders-table td a {
     padding: 15px 20px;
     text-align: left;
     color: #BAC4D1;

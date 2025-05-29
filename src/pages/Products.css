@@ -53,7 +53,8 @@
 }
 
 .products-table th,
-.products-table td {
+.products-table td,
+.products-table td a {
     padding: 15px 20px;
     text-align: left;
     color: #BAC4D1;

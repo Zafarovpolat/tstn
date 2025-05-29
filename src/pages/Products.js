@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { supabase, setCurrentUserId } from "../pages/supabaseClient";
-import { useUser } from "../pages/UserContext"; // Предполагается, что есть UserContext
+import { useUser } from "../pages/UserContext";
 import "./Products.css";
 
 function Products() {
     const BASE_URL = "https://example.com/";
-    const BOT_TOKEN = process.env.REACT_APP_BOT_TOKEN; // Токен из переменной окружения
-    const CHAT_ID = "7987200974"; // Для новых заказов, если chat_id не указан
+    const BOT_TOKEN = process.env.REACT_APP_BOT_TOKEN;
+    const CHAT_ID = "7987200974";
 
     const { user } = useUser();
     const [products, setProducts] = useState([]);
@@ -29,7 +29,6 @@ function Products() {
     const [toast, setToast] = useState({ message: "", type: "", visible: false, hiding: false });
 
     const sendTelegramMessage = async (chatId, message) => {
-        // Проверяем наличие chat_id перед отправкой
         if (!chatId) {
             console.warn("chat_id отсутствует, сообщение не отправлено");
             showToast("Уведомление не отправлено: заказ добавлен вручную", "warning");
@@ -165,12 +164,11 @@ function Products() {
                     amount: parseInt(newProduct.amount),
                     status: "Одобрено",
                     created_by: user.id,
-                    chat_id: null, // Для вручную добавленных заказов chat_id = null
+                    chat_id: null,
                 },
             ]);
             if (error) throw error;
 
-            // Для новых заказов уведомление не отправляется, так как они добавлены вручную
             showToast("Уведомление не отправлено: заказ добавлен вручную", "warning");
 
             setNewProduct({ client: "", url: "", date_time: "", amount: "" });
@@ -229,7 +227,6 @@ function Products() {
                 .eq("id", currentProduct.id);
             if (error) throw error;
 
-            // Отправляем уведомление только если есть chat_id
             if (currentProduct.chat_id) {
                 await sendTelegramMessage(
                     currentProduct.chat_id,
@@ -263,7 +260,6 @@ function Products() {
                     .eq("id", currentProduct.id);
                 if (error) throw error;
 
-                // Отправляем уведомление только если есть chat_id
                 if (currentProduct.chat_id) {
                     await sendTelegramMessage(
                         currentProduct.chat_id,
@@ -427,7 +423,11 @@ function Products() {
                                 <tr key={product.id}>
                                     <td>{product.id}</td>
                                     <td>{product.client}</td>
-                                    <td>{product.url}</td>
+                                    <td>
+                                        <a href={product.url} target="_blank" rel="noopener noreferrer">
+                                            {product.url}
+                                        </a>
+                                    </td>
                                     <td>{product.amount.toLocaleString()} UZS</td>
                                     <td>{product.date_time}</td>
                                     <td>{product.status}</td>

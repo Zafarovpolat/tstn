@@ -5,7 +5,6 @@ import "./Assistant.css";
 function Assistant() {
     const { user } = useUser();
     const [clientsData, setClientsData] = useState({});
-    const [timers, setTimers] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const socketRef = useRef(null);
@@ -37,54 +36,24 @@ function Assistant() {
             return;
         }
 
-        if (data.clientId && data.userInfo && (data.question || data.questionImg) && data.answers) {
-            renderExam(data);
-            if (data.timer && clientsData[data.clientId]?.timer !== data.timer) {
-                setClientsData((prev) => ({
+        if (data.type === "timerUpdate" && data.clientId && data.timer) {
+            setClientsData((prev) => {
+                if (!prev[data.clientId]) return prev;
+                return {
                     ...prev,
                     [data.clientId]: {
                         ...prev[data.clientId],
                         timer: data.timer,
                     },
-                }));
-                if (!timers[data.clientId]) {
-                    let timeInSeconds = timeToSeconds(data.timer);
-                    setTimeout(() => {
-                        setTimers((prevTimers) => {
-                            if (prevTimers[data.clientId]) return prevTimers;
-                            const interval = setInterval(() => {
-                                setClientsData((prevClients) => {
-                                    if (!prevClients[data.clientId]) {
-                                        clearInterval(interval);
-                                        return prevClients;
-                                    }
-                                    if (timeInSeconds > 0) {
-                                        timeInSeconds--;
-                                        return {
-                                            ...prevClients,
-                                            [data.clientId]: {
-                                                ...prevClients[data.clientId],
-                                                timer: secondsToTime(timeInSeconds),
-                                            },
-                                        };
-                                    } else {
-                                        clearInterval(interval);
-                                        setTimers((prevTimers) => {
-                                            const newTimers = { ...prevTimers };
-                                            delete newTimers[data.clientId];
-                                            return newTimers;
-                                        });
-                                        return prevClients;
-                                    }
-                                });
-                            }, 1000);
-                            return { ...prevTimers, [data.clientId]: interval };
-                        });
-                    }, 2000);
-                }
-            }
+                };
+            });
+            return;
         }
-    }, [clientsData, timers]);
+
+        if (data.clientId && data.userInfo && (data.question || data.questionImg) && data.answers) {
+            renderExam(data);
+        }
+    }, []);
 
     const connectWebSocket = useCallback(() => {
         console.log("Попытка подключения WebSocket...");
@@ -136,7 +105,7 @@ function Assistant() {
                 setIsLoading(false);
             }
         };
-    }, []); // Убрали clientsData из зависимостей
+    }, []);
 
     useEffect(() => {
         connectWebSocket();
@@ -146,23 +115,9 @@ function Assistant() {
                 socketRef.current.close();
                 socketRef.current = null;
             }
-            Object.values(timers).forEach((interval) => clearInterval(interval));
-            setTimers({});
             clearTimeout(loaderTimeoutRef.current);
         };
     }, [connectWebSocket]);
-
-    const timeToSeconds = useCallback((timeStr) => {
-        const [hours, minutes, seconds] = timeStr.split(":").map(Number);
-        return hours * 3600 + minutes * 60 + seconds;
-    }, []);
-
-    const secondsToTime = useCallback((seconds) => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
-        return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-    }, []);
 
     const renderExam = useCallback(
         (data) => {
@@ -178,42 +133,6 @@ function Assistant() {
                         timer: timer || "00:00:00",
                         showQuestions: false,
                     };
-
-                    let timeInSeconds = timeToSeconds(newData[clientId].timer);
-                    if (!timers[clientId]) {
-                        setTimeout(() => {
-                            setTimers((prevTimers) => {
-                                if (prevTimers[clientId]) return prevTimers;
-                                const interval = setInterval(() => {
-                                    setClientsData((prevClients) => {
-                                        if (!prevClients[clientId]) {
-                                            clearInterval(interval);
-                                            return prevClients;
-                                        }
-                                        if (timeInSeconds > 0) {
-                                            timeInSeconds--;
-                                            return {
-                                                ...prevClients,
-                                                [clientId]: {
-                                                    ...prevClients[clientId],
-                                                    timer: secondsToTime(timeInSeconds),
-                                                },
-                                            };
-                                        } else {
-                                            clearInterval(interval);
-                                            setTimers((prevTimers) => {
-                                                const newTimers = { ...prevTimers };
-                                                delete newTimers[clientId];
-                                                return newTimers;
-                                            });
-                                            return prevClients;
-                                        }
-                                    });
-                                }, 1000);
-                                return { ...prevTimers, [clientId]: interval };
-                            });
-                        }, 2000);
-                    }
                 }
 
                 const uniqueId = `${clientId}-${qIndex}`;
@@ -227,10 +146,15 @@ function Assistant() {
                     });
                 }
 
+                // Update timer if provided in the data
+                if (timer) {
+                    newData[clientId].timer = timer;
+                }
+
                 return newData;
             });
         },
-        [timers, timeToSeconds, secondsToTime]
+        []
     );
 
     const removeClient = useCallback((clientId) => {
@@ -238,15 +162,6 @@ function Assistant() {
             const newData = { ...prev };
             delete newData[clientId];
             return newData;
-        });
-        setTimers((prev) => {
-            if (prev[clientId]) {
-                clearInterval(prev[clientId]);
-                const newTimers = { ...prev };
-                delete newTimers[clientId];
-                return newTimers;
-            }
-            return prev;
         });
         console.log(`Клиент ${clientId} удалён из интерфейса`);
     }, []);
