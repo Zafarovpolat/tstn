@@ -290,6 +290,12 @@
     background-color: #f9f9f9;
 }
 
+.question p.answered-info {
+    color: #007bff;
+    font-style: italic;
+    margin-top: 10px;
+}
+
 /* Стили для мобильных устройств */
 @media (max-width: 768px) {
     .assistant {
