@@ -5,7 +5,7 @@ import "./Orders.css";
 
 function Orders() {
     const { user } = useUser();
-    const BASE_URL = "https://example.com/";
+    const BASE_URL = "https://t.me/+";
     const BOT_TOKEN = process.env.REACT_APP_BOT_TOKEN; // Токен из переменной окружения
     const CHAT_ID = "7987200974"; // Для новых заказов, если chat_id не указан
 
